@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: database
+  namespace: wp-ns
+  labels:
+    app: database
+    version: v1
+    env: dev
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: database
+  template:
+    metadata:
+      labels:
+        app: database
+    spec:
+      containers:
+        - name: database
+          image: mariadb:10.6.4-focal
+          ports:
+            - containerPort: 3306
+          volumeMounts:
+            - mountPath: /var/lib/mysql
+              name: mysql-persistent-storage
+          envFrom:
+            - secretRef:
+                name: db-secret
+            - configMapRef:
+                name: db-configmap
+      volumes:
+        - name: mysql-persistent-storage
+
