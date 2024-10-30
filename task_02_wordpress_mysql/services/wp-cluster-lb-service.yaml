@@ -4,7 +4,7 @@ metadata:
   name: my-cluster-lb-service
   namespace: wp-ns
 spec:
-  type: LoadBalancer
+  type: NodePort
   ports:
     - port: 8080
       targetPort: 80
