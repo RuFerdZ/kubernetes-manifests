@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  namespace: nginx-proxy
+  labels:
+    app: nginx-deployment
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: proxy
+  template:
+    metadata:
+      labels:
+        app: proxy
+        env: dev
+        version: "1.0.0"
+    spec:
+      containers:
+        - name: proxy
+          image: ruferdz/nginx-proxy:v2
+          ports:
+            - containerPort: 8080
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: nginx-service
+  namespace: nginx-proxy
+  labels:
+    app: nginx-service
+spec:
+  type: NodePort
+  selector:
+    app: proxy
+  ports:
+    - port: 80
+      targetPort: 8080
+
+

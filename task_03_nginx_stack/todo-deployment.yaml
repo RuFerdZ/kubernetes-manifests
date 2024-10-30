@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: todo-deployment
+  namespace: todo
+  labels:
+    app: todo-deployment
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: todo
+  template:
+    metadata:
+      labels:
+        app: todo
+        env: dev
+        version: "1.0.0"
+    spec:
+      containers:
+        - name: todo
+          image: ruferdz/todo-list:v1
+          ports:
+            - containerPort: 3000
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: todo-service
+  namespace: todo
+  labels:
+    app: todo-service
+spec:
+  type: ClusterIP
+  selector:
+    app: todo
+  ports:
+    - port: 80
+      targetPort: 3000
+
+
