@@ -4,7 +4,7 @@ metadata:
   name: wp-configmap
   namespace: wp-ns
 data:
-  WORDPRESS_DB_HOST: "my-service.wp-ns.svc.cluster.local"
+  WORDPRESS_DB_HOST: "my-service.db-ns.svc.cluster.local"
   WORDPRESS_DB_USER: "wordpress"
   WORDPRESS_DB_NAME: "wordpress"
 
