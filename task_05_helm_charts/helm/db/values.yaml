@@ -1,3 +1,6 @@
+#default
+#common stuff is put here
+
 db:
   name: wp-database
   labels:
@@ -26,4 +29,4 @@ db:
   #         path: /shared_volume
   #         server: dev-cache-filestore.internal.gdev.postmedia.digital
   #     claim:
-  #         name: nginx-proxy-cache-store-claim
+  #         name: nginx-proxy-cache-store-claim+
