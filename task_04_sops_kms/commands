@@ -1,0 +1,19 @@
+
+- To encrypt:
+```
+sops --encrypt secrets.yaml > secrets.enc.yaml
+```
+
+- To edit:
+```
+sops secrets.enc.yaml
+```
+
+- To decrypt:
+```
+sops -d secrets.enc.yaml > secrets.yaml
+```
+
+- Create Secret resource
+```
+sops -d secrets.enc.yaml | kubectl apply -f -
