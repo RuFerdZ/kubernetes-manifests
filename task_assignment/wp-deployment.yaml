@@ -11,7 +11,7 @@ metadata:
   name: wp-configmap
   namespace: wp-ns
 data:
-  WORDPRESS_DB_HOST: "my-service.db-ns.svc.cluster.local"
+  WORDPRESS_DB_HOST: "db-service.db-ns.svc.cluster.local"
   WORDPRESS_DB_USER: "wordpress"
   WORDPRESS_DB_NAME: "wordpress"
 
@@ -63,12 +63,12 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: my-cluster-lb-service
+  name: wp-service
   namespace: wp-ns
 spec:
-  type: NodePort
+  type: ClusterIP
   ports:
-    - port: 8080
+    - port: 80
       targetPort: 80
   selector:
     app: wordpress-app

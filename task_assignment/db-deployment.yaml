@@ -69,7 +69,7 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: my-service
+  name: db-service
   namespace: db-ns
 spec:
   type: ClusterIP
