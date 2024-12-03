@@ -58,3 +58,128 @@ to set if env variable is not set:
 
 
 Add decrypted file to gitignore
+
+
+------------------------------------------------------
+## Using Helmfile
+Step 1: Modify Your SecretProviderClass
+The SecretProviderClass will remain the same, but you’ll ensure it creates a Kubernetes Secret automatically. Add the following annotation:
+
+For wpapp Namespace:
+yaml
+Copy code
+apiVersion: secrets-store.csi.x-k8s.io/v1
+kind: SecretProviderClass
+metadata:
+  name: gcp-secrets-wpapp
+  namespace: wpapp
+annotations:
+  secrets-store.csi.k8s.io/secret-name: frontend-db-secret
+  secrets-store.csi.k8s.io/secret-rotation-enabled: "true"
+spec:
+  provider: gcp
+  parameters:
+    secrets: |
+      - resourceName: "projects/my-project/secrets/MY_DB_PASSWORD"
+        version: "latest"
+For wpdb Namespace:
+yaml
+Copy code
+apiVersion: secrets-store.csi.x-k8s.io/v1
+kind: SecretProviderClass
+metadata:
+  name: gcp-secrets-wpdb
+  namespace: wpdb
+annotations:
+  secrets-store.csi.k8s.io/secret-name: database-db-secret
+  secrets-store.csi.k8s.io/secret-rotation-enabled: "true"
+spec:
+  provider: gcp
+  parameters:
+    secrets: |
+      - resourceName: "projects/my-project/secrets/MY_DB_PASSWORD"
+        version: "latest"
+The annotation secrets-store.csi.k8s.io/secret-name tells the CSI driver to create a Kubernetes Secret with the specified name.
+secrets-store.csi.k8s.io/secret-rotation-enabled: "true" enables automatic rotation.
+Step 2: Define a Separate secrets.yaml
+In each namespace, define a Secret manifest. The CSI driver will populate this secret automatically.
+
+For wpapp Namespace:
+yaml
+Copy code
+apiVersion: v1
+kind: Secret
+metadata:
+  name: frontend-db-secret
+  namespace: wpapp
+type: Opaque
+data: {}
+For wpdb Namespace:
+yaml
+Copy code
+apiVersion: v1
+kind: Secret
+metadata:
+  name: database-db-secret
+  namespace: wpdb
+type: Opaque
+data: {}
+These secrets are placeholders, and the CSI driver will populate the data field with the content from GSM.
+
+Step 3: Reference the Secret in Your Deployment
+Update your deployment to reference the Secret rather than embedding secret details directly.
+
+Frontend Deployment (wpapp namespace):
+yaml
+Copy code
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-app
+  namespace: wpapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: frontend-app
+  template:
+    metadata:
+      labels:
+        app: frontend-app
+    spec:
+      containers:
+        - name: frontend
+          image: my-frontend-image
+          env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: frontend-db-secret
+                  key: MYSQL_PASSWORD
+Database Deployment (wpdb namespace):
+yaml
+Copy code
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: database
+  namespace: wpdb
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: database
+  template:
+    metadata:
+      labels:
+        app: database
+    spec:
+      containers:
+        - name: database
+          image: my-database-image
+          env:
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: database-db-secret
+                  key: MYSQL_PASSWORD
